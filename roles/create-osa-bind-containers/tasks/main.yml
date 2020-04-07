@@ -1,0 +1,26 @@
+---
+- name: Create the bind server env.d/bind.yml file
+  copy:
+    src: env.d/bind.yml
+    dest: /etc/openstack_deploy/env.d/bind.yml
+  tags:
+    - create_bind_containers
+
+- name: Create the bind server conf.d/bind.yml file
+  template:
+    src: conf.d/bind.yml.j2
+    dest: /etc/openstack_deploy/conf.d/bind.yml
+  tags:
+    - create_bind_containers
+
+- name: Run the container build playbook if needed
+  shell: |
+    lxc-ls -f | grep bind_container
+    if [ $? != 0 ]; then
+        openstack-ansible setup-hosts.yml --limit bind_all
+    fi
+  args:
+    chdir: /opt/openstack-ansible/playbooks
+  tags:
+    - create_bind_containers
+  

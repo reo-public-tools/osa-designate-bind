@@ -1,0 +1,8 @@
+---
+
+bind_hosts:
+{% for curhost in groups['os-infra_hosts'] %}
+  {{ curhost }}:
+    ip: {{ hostvars[curhost].ansible_host }}
+{% endfor %}
+

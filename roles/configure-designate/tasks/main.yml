@@ -1,0 +1,47 @@
+---
+
+- name: Create designate folder
+  file:
+    name: /etc/bind
+    mode: 0775
+    state: directory
+  tags:
+    - configure_desginate
+
+- name: Install rndc.key to designate hosts
+  copy:
+    src: "{{ local_rndc_copy }}"
+    dest: /etc/bind/rndc.key
+  tags:
+    - configure_desginate
+
+- name: Install BIND Utils (primary method)
+  apt:
+    name: bind9utils
+    state: present
+  register: install_packages
+  until: install_packages is success
+  retries: 2
+  delay: 2
+  tags:
+    - configure_desginate
+
+- name: Generate /etc/openstack_deploy/user_local_designate_pools.yml
+  template:
+    src: templates/user_local_designate_pools.yml.j2
+    dest: /etc/openstack_deploy/user_local_designate_pools.yml
+  register: designate_config_update
+  run_once: yes
+  delegate_to: localhost
+  tags:
+    - configure_desginate
+
+- name: Run the designate playbooks on config update
+  shell: openstack-ansible os-designate-install.yml
+  args:
+    chdir: /opt/openstack-ansible/playbooks
+  when: designate_config_update.changed
+  run_once: yes
+  delegate_to: localhost
+  tags:
+    - configure_desginate

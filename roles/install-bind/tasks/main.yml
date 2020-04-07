@@ -1,0 +1,52 @@
+---
+- name: Install Base Packages
+  apt:
+    name: "bind9"
+    state: present
+  register: install_packages
+  until: install_packages is success
+  retries: 2
+  delay: 2
+  tags:
+    - install-bind
+
+- name: Install named configuration file
+  template:
+    src: templates/named.conf.j2
+    dest: /etc/bind/named.conf.options
+    owner: root
+    group: root
+  notify: Restart BIND
+  tags:
+    - install-bind
+
+- name: Create needed directories
+  file:
+    name: "{{ item }}"
+    group: "bind"
+    mode: 0775
+    state: directory
+  with_items:
+    - "/var/cache/bind/data"
+    - "/var/cache/bind/dynamic"
+  notify: Restart BIND
+  tags:
+    - install-bind
+
+- name: Pull one of the keys off one of the bind hosts
+  fetch:
+    src: /etc/bind/rndc.key
+    dest: /tmp/rndc.key
+    flat: yes
+  run_once: yes
+  tags:
+    - install-bind
+
+- name: Distribute key to all bind hosts
+  copy:
+    src: /tmp/rndc.key
+    dest: /etc/bind/rndc.key
+  notify: Restart BIND
+  tags:
+    - install-bind
+

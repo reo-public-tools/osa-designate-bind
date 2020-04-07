@@ -1,0 +1,23 @@
+---
+
+
+- name: Start the bind server install onto the controller nodes
+  hosts: "localhost"
+  gather_facts: false
+  user: root
+  roles:
+    - role: create-osa-bind-containers
+
+- name: Install named services onto the new bind containers
+  hosts: "bind"
+  gather_facts: false
+  user: root
+  roles:
+    - role: install-bind
+
+- name: Update designate rndc files and pool configuraitons
+  hosts: "designate_all"
+  gather_facts: false
+  user: root
+  roles:
+    - role: configure-designate

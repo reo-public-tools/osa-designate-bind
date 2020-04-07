@@ -1,0 +1,19 @@
+component_skel:
+  bind:
+    belongs_to:
+      - bind_all
+
+container_skel:
+  bind_container:
+    belongs_to:
+      - bind_containers
+    contains:
+      - bind
+
+physical_skel:
+  bind_containers:
+    belongs_to:
+      - all_containers
+  bind_hosts:
+    belongs_to:
+      - hosts

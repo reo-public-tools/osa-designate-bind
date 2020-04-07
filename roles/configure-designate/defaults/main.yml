@@ -1,0 +1,4 @@
+---
+
+# Copied here by default with the install-bind role
+local_rndc_copy: "/tmp/rndc.key"
