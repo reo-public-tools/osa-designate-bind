@@ -21,3 +21,10 @@
   user: root
   roles:
     - role: configure-designate
+
+- name: Forward dns ports to the backend container
+  hosts: "os-infra_hosts"
+  gather_facts: false
+  user: root
+  roles:
+    - role: forward-ports

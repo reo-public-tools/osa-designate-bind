@@ -1,0 +1,36 @@
+---
+- name: Install iptables packages
+  apt:
+    name: "iptables-persistent"
+    state: latest
+  tags:
+    - forward_ports
+ 
+
+- name: Set up port forwarding for matching bind server
+  shell: |
+    {% if ansible_hostname in item %}
+    echo "Found match: infra: {{ ansible_hostname }} bind: {{ item }} bind ip: {{ hostvars[item].ansible_host }}"
+    
+    # Get the primary interface
+    export USEINT=$(ip r | awk '/^default/{print $5}')
+
+    # Add the tcp nat and save if needed
+    iptables -n -L -t nat | grep "tcp dpt:53 to:{{ hostvars[item].ansible_host }}"
+    if [ $? != 0 ]; then
+      iptables -A PREROUTING -t nat -i $USEINT -p tcp --dport 53 -j DNAT --to {{ hostvars[item].ansible_host }}
+      iptables-save > /etc/iptables/rules.v4
+    fi
+
+    # Add the udp nat and save if needed
+    iptables -n -L -t nat | grep "udp dpt:53 to:{{ hostvars[item].ansible_host }}"
+    if [ $? != 0 ]; then
+      iptables -A PREROUTING -t nat -i $USEINT -p udp --dport 53 -j DNAT --to {{ hostvars[item].ansible_host }}
+      iptables-save > /etc/iptables/rules.v4
+    fi
+    {% else %}
+    echo "No match: infra: {{ ansible_hostname }} bind: {{ item }} bind ip: {{ hostvars[item].ansible_host }}"
+    {% endif %}
+  with_items: "{{ groups['bind'] }}"
+  tags:
+    - forward_ports
