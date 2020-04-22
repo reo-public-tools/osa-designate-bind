@@ -12,7 +12,8 @@ This has only been tested on an ubuntu 18 train environment.  The playbooks do t
 * Sets up port forwarding for udp/tcp port 53 on infra primary interface to the bind containers.
 
 ## Usage (to be ran from the OSA deploy host)
-
+Note: The glue records may not be pullable from the available vars depending on who sets up the delegation in dns.  Due to this, its a required variable without a default.
 ```
-openstack-ansible install-bind.yml
+openstack-ansible create-bind-containers.yml
+openstack-ansible install-bind.yml -e '{"glue_records":["ns01.somegluensrecord.com.","ns02.somegluensrecord.com.","ns03.somegluensrecord.com."]}' -e 'allow_recursion=yes' 
 ```

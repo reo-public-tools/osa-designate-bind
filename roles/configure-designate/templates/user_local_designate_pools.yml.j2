@@ -4,8 +4,8 @@ designate_pools_yaml:
     description: Default BIND9 Pool
     attributes: {}
     ns_records:
-{% for designate_bind in groups['bind'] %}
-      - hostname: {{ designate_bind }}.{{ openstack_domain }}.
+{% for glue_record in glue_records %}
+      - hostname: {{ glue_record }}
         priority: 1
 {% endfor %}
     nameservers:

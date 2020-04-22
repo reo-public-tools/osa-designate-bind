@@ -7,7 +7,7 @@ options {
         allow-query     { any; };
         allow-notify    { {{ ansible_host }}; };
 
-        recursion no;
+        recursion {{ allow_recursion }};
 
         dnssec-enable yes;
         dnssec-validation yes;

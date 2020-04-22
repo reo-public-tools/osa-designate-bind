@@ -1,0 +1,10 @@
+---
+
+
+- name: Start the bind server install onto the controller nodes
+  hosts: "localhost"
+  gather_facts: false
+  user: root
+  roles:
+    - role: create-osa-bind-containers
+

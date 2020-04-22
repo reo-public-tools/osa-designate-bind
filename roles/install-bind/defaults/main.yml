@@ -2,3 +2,6 @@
 
 # Listen IP for the bind servers which get's used by designate
 ops_bind_listen: "{{ ansible_host }};"
+
+# Allow recursion(yes/no)
+allow_recursion: "no"
